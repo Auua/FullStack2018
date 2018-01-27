@@ -1,0 +1,1 @@
+Saa random anekdootteja napin painalluksella
