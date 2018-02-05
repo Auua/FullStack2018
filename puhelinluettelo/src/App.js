@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 
 import Person from './components/Person'
+import PersonService from './services/Persons'
+import Notification from './components/Notification'
 
 class App extends Component {
   constructor(props) {
@@ -10,24 +11,22 @@ class App extends Component {
       persons: [],
       newName: '',
       newNumber: '',
-      filterName: ''
+      filterName: '',
+      message: null
     }
     this.addName = this.addName.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleNumberChange = this.handleNumberChange.bind(this)
     this.filterNames = this.filterNames.bind(this)
+    this.deleteName = this.deleteName.bind(this)
   }
 
   componentWillMount() {
-    axios
-      .get('http://localhost:3001/persons')
+    PersonService
+      .getAll()
       .then(response => {
-        const persons= response.data
-        console.log(persons)
-        this.setState({
-          persons
-        })
-  })
+        this.setState({ persons: response.data })
+      })
   }
 
   addName = (e) => {
@@ -37,16 +36,56 @@ class App extends Component {
       number: this.state.newNumber
     }
 
-    if (this.state.persons.filter(person => person.name === newPerson.name).length === 0) {
-      const persons = this.state.persons.concat(newPerson)
-      this.setState({
-        persons,
-        newName: '',
-        newNumber: ''
-      })
+    const checkNames = this.state.persons.filter(person => person.name === newPerson.name)
+
+    if (checkNames.length === 0) {
+      
+      PersonService
+        .create(newPerson)
+        .then(response => {
+          this.setState({
+            message: 'Uusi yhteystieto lisätty!',
+            persons: this.state.persons.concat(response.data),
+            newName: '',
+            newNumber: ''
+          })
+        })
+    } else if (checkNames.length === 1) {
+      if (window.confirm('Vaihdetaanko yhteystiedot: ' + checkNames[0].name)) {
+        console.log(checkNames[0].id)
+        PersonService
+        .update(checkNames[0].id, newPerson)
+        .then(
+          this.state.persons.splice(this.state.persons.findIndex(p => p.name === newPerson.name), 1, newPerson),
+          this.setState({
+            message: newPerson.name + ' vaihdettu',
+            persons: this.state.persons,
+            newName: '',
+            newNumber: ''
+          })
+        )
+      }
     }
-    
-  } 
+    setTimeout(() => {
+      this.setState({message: null})
+    }, 3000)
+  }
+  
+  deleteName = (e) => {
+    if (window.confirm("Poistetaanko " + e.target.name)) {
+      PersonService
+      .deleteName(e.target.id)
+      .then(
+        this.state.persons.splice(this.state.persons.findIndex(p => p.id === e.target.id), 1),
+        this.setState({ 
+          message: e.target.name + ' poistettu',
+          persons: this.state.persons}),
+        setTimeout(() => {
+          this.setState({message: null})
+        }, 3000)
+      )
+    }
+  }
 
   handleNameChange = (e) => {
     this.setState({ newName: e.target.value })
@@ -67,6 +106,9 @@ class App extends Component {
     return (
       <div>
         <h2>Puhelinluettelo</h2>
+
+        <Notification message={this.state.message}/>
+
         <div>
           Hae: <input value={this.state.filterName} onChange={this.filterNames}/>
         </div>
@@ -83,9 +125,11 @@ class App extends Component {
           </div>
         </form>
         <h2>Numerot</h2>
-        {persons.map(person =>
-          <Person key={person.name} person={person}/>
-        )}
+        <table>
+          {persons.map(person =>
+            <Person key={person.name} poista={this.deleteName} person={person}/> 
+          )}
+        </table>
       </div>
     )
   }

@@ -1,10 +1,14 @@
 import React from 'react'
 
-const Person = ({ person }) => {
+const Person = ({ person, poista }) => {
   return(
-    <div>
-      {person.name}: {person.number}
-    </div>
+    <tbody>
+      <tr>
+        <td>{person.name}:</td>
+        <td>{person.number}</td>
+        <td><button id={person.id} name={person.name} onClick={poista}>poista</button></td>
+      </tr>
+    </tbody>
   )
 }
 
