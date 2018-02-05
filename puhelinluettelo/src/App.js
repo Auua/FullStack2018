@@ -1,17 +1,13 @@
-import React from 'react'
+import React, { Component } from 'react'
+import axios from 'axios'
 
 import Person from './components/Person'
 
-class App extends React.Component {
+class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      persons: [
-        { name: 'Arto Hellas', number: '040-123456' },
-        { name: 'Martti Tienari', number: '040-123456' },
-        { name: 'Arto Järvinen', number: '040-123456' },
-        { name: 'Lea Kutvonen', number: '040-123456' }
-      ],
+      persons: [],
       newName: '',
       newNumber: '',
       filterName: ''
@@ -20,6 +16,18 @@ class App extends React.Component {
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleNumberChange = this.handleNumberChange.bind(this)
     this.filterNames = this.filterNames.bind(this)
+  }
+
+  componentWillMount() {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        const persons= response.data
+        console.log(persons)
+        this.setState({
+          persons
+        })
+  })
   }
 
   addName = (e) => {
@@ -65,10 +73,10 @@ class App extends React.Component {
         <h3>Lisää uusi </h3>
         <form onSubmit={this.addName}>
           <div>
-            nimi: <input value={this.state.newName}  onChange={this.handleNameChange}/>
+            Nimi: <input value={this.state.newName}  onChange={this.handleNameChange}/>
           </div>
           <div>
-            numero: <input value={this.state.newNumber} onChange={this.handleNumberChange}/>
+            Numero: <input value={this.state.newNumber} onChange={this.handleNumberChange}/>
           </div>
           <div>
             <button type="submit">lisää</button>
