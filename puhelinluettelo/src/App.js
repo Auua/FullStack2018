@@ -52,18 +52,17 @@ class App extends Component {
         })
     } else if (checkNames.length === 1) {
       if (window.confirm(`Vaihdetaanko yhteystiedot:  '${checkNames[0].name}'`)) {
-        console.log(checkNames[0].id)
         PersonService
         .update(checkNames[0].id, newPerson)
-        .then(
-          this.state.persons.splice(this.state.persons.findIndex(p => p.name === newPerson.name), 1, newPerson),
+        .then(changedPerson => {
+          const persons = this.state.persons.filter(n => n.id !== checkNames[0].id)
           this.setState({
+            persons: persons.concat(changedPerson.data),
             message: `'${newPerson.name}' on vaihdettu`,
-            persons: this.state.persons,
             newName: '',
             newNumber: ''
-          })
-        ).catch(error => {
+        })})
+        .catch(error => {
           alert(`Yhteystieto '${newPerson.name}' on jo ehditty poistaa palvelimelta`)
           this.setState({ persons: this.state.persons.filter(p => p.id !== newPerson.id) })
         })
