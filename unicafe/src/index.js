@@ -1,115 +1,80 @@
-import React, { Component } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
+import store from './store'
 
+const Statistiikka = () => {
+  const palautteet = store.getState()
 
-const Palaute = ({ palaute, handleClick }) => {
+  const maara = palautteet.good + palautteet.bad + palautteet.ok
+
+  if (maara === 0) {
+    return (
+      <div>
+        <h2>statistiikka</h2>
+        <div>ei yhtään palautetta annettu</div>
+      </div>
+    )
+  }
+
+  let ka = ((palautteet.good - palautteet.bad )/ maara * 100).toFixed(1)
+
+  let pos = (palautteet.good / maara * 100).toFixed(1)
+
   return (
     <div>
-      <h1>Anna palautetta</h1>            
-      {palaute.map((arvosana) => 
-        <Button key={arvosana.nimi} nimi={arvosana.nimi} handleClick={handleClick}/>
-      )}
+      <h2>statistiikka</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>hyvä</td>
+            <td>{palautteet.good}</td>
+          </tr>
+          <tr>
+            <td>neutraali</td>
+            <td>{palautteet.ok}</td>
+          </tr>
+          <tr>
+            <td>huono</td>
+            <td>{palautteet.bad}</td>
+          </tr>
+          <tr>
+            <td>keskiarvo</td>
+            <td>{ka}</td>
+          </tr>
+          <tr>
+            <td>positiivisia</td>
+            <td>{pos}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button onClick={e => store.dispatch({ type: 'ZERO' })}>nollaa tilasto</button>
     </div>
   )
 }
 
-const Button = (props) => (
-  <button id={props.nimi} onClick={props.handleClick}>
-    {props.nimi}
-  </button>
-)
+class App extends React.Component {
 
-const Statistiikka = ({ palaute, keskiarvo }) => {
-  
-  let total = 0
-  palaute.map(arvosana => total += arvosana.maara)
-  
-  let ka = keskiarvo / total
-  ka = ka.toFixed(2)
-
-  let pos = palaute[0].maara / total * 100
-  pos = pos.toFixed(1)
-
-  if (!total) {
-    return <div><h2>Statistiikka</h2> Ei vielä arvioita</div>
+  klik = (nappi) => () => {
+    store.dispatch({ type: nappi })
   }
-  return (  
-    <div>
-    <h2>Statistiikka</h2>
-    <table>
-      <tbody>
-      {palaute.map((arvosana) => 
-        <tr key={arvosana.nimi}>
-          <td>{arvosana.nimi}</td>
-          <td>{arvosana.maara}</td>
-        </tr>
-      )}            
-      <tr>
-        <td>keskiarvo</td>
-        <td>{ka}</td>
-      </tr>
-      <tr>
-        <td>positiivisia </td>
-        <td>{pos} %</td>
-      </tr>
-      </tbody>
-    </table>
-    </div>
-  )
-}
-
-class App extends Component {
-  constructor() {
-    super()
-    this.state = {
-      hyva: 0,
-      neutraali: 0,
-      huono: 0,
-      keskiarvo: 0,
-    }
-  }
-
-  handleClick = (e) => {
-    switch (e.target.id) {
-      case 'hyvä':
-        this.setState({ ...this.state, hyva: this.state.hyva + 1, keskiarvo: this.state.keskiarvo + 1 })
-        break
-      case 'neutraali':
-        this.setState({ ...this.state, neutraali: this.state.neutraali + 1 })
-        break
-      case 'huono':
-        this.setState({ ...this.state, huono: this.state.huono + 1 , keskiarvo: this.state.keskiarvo - 1 })
-        break
-
-      default:
-        break
-  }}
 
   render() {
-    const palaute = [
-      {
-        nimi: 'hyvä',
-        maara: this.state.hyva
-      },
-      {
-        nimi: 'neutraali',
-        maara: this.state.neutraali
-      },
-      {
-        nimi: 'huono',
-        maara: this.state.huono
-      }
-    ]
-
     return (
-    <div>
-      <Palaute palaute={palaute} handleClick={this.handleClick}/>
-      <Statistiikka palaute={palaute} keskiarvo={this.state.keskiarvo}/>
-    </div>
-  )}
+      <div>
+        <h2>anna palautetta</h2>
+        <button onClick={this.klik('GOOD')}>hyvä</button>
+        <button onClick={this.klik('OK')}>neutraali</button>
+        <button onClick={this.klik('BAD')}>huono</button>
+        <Statistiikka />
+      </div>
+    )
+  }
 }
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('root')
-)
+const renderApp = () => {
+  ReactDOM.render(<App />, document.getElementById('root'))
+}
+
+renderApp()
+store.subscribe(renderApp)
