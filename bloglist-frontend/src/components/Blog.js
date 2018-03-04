@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import blogService from '../services/blogs'
 
 class Blog extends Component {
@@ -53,11 +54,11 @@ class Blog extends Component {
     let { blog, user } = this.props
 
     return (
-      <div>
-        <div style={hideWhenVisible} onClick={this.toggleVisibility}>
+      <div className='wrapper'>
+        <div className='name' style={hideWhenVisible} onClick={this.toggleVisibility}>
           {blog.title} {blog.author}
         </div>
-        <div style={showWhenVisible} >
+        <div className='info' style={showWhenVisible} >
           <p onClick={this.toggleVisibility}>{blog.title}: {blog.author}</p>
           {blog.url} <br/>
           {blog.likes} <button onClick={this.addLike}>like</button> <br/>
@@ -70,3 +71,9 @@ class Blog extends Component {
 }
 
 export default Blog
+
+Blog.propTypes = {
+  removeABlog: PropTypes.func.isRequired,
+  addALike: PropTypes.func.isRequired,
+  blog: PropTypes.object.isRequired
+}

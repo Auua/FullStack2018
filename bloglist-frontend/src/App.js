@@ -107,11 +107,19 @@ class App extends Component {
   render() {
 
     const loggedIn = () => (
-      <div>
+      <div className='loggedIn'>
         <p>{this.state.user.name} is logged in</p>
         <button onClick={this.logOut}>Log out</button>
 
         <BlogForm addNewBlog = {this.addNewBlog}/>
+
+        <div>
+          <h2>Blogs</h2>
+
+          {blogs.map(blog => 
+            <Blog key={blog.id} user={this.state.user} blog={blog} visible='false' addALike={this.addNewLike} removeABlog={this.removeABlog}/>
+          )}
+        </div>
       </div>
     )
 
@@ -137,13 +145,6 @@ class App extends Component {
           </Togglable>
             : loggedIn()
           }
-        </div>
-        <div>
-          <h2>blogs</h2>
-
-          {blogs.map(blog => 
-            <Blog key={blog.id} user={this.state.user} blog={blog} visible='false' addALike={this.addNewLike} removeABlog={this.removeABlog}/>
-          )}
         </div>
       </div>
     );

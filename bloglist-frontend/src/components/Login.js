@@ -1,7 +1,7 @@
 import React from 'react'
 
 const LoginForm = (props) => (
-  <div>
+  <div className='Login'>
     <h2>Log in to application</h2>
       <form onSubmit={props.login}>
         <div>
