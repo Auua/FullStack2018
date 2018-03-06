@@ -3,11 +3,16 @@ import { connect } from 'react-redux'
 import { likeAnecdote } from '../reducers/anecdoteReducer'
 import { notificationChange } from '../reducers/notificationReducer'
 
+import anecdoteService from '../services/anecdotes'
 import Anecdote from './Anecdote'
 
 const AnecdoteList = (props) => {
-  const voteAnecdote = (anecdote) => () => {
-    props.likeAnecdote(anecdote.id)
+  const voteAnecdote = async (anecdote) => {
+
+    const votedAnecdote = await anecdoteService.addVote(anecdote)
+
+    props.likeAnecdote(votedAnecdote)
+
     const message = `You voted ${anecdote.content}`
     props.notificationChange(message)
     setTimeout(() => {
@@ -21,7 +26,7 @@ const AnecdoteList = (props) => {
         <Anecdote
           key={anecdote.id}
           anecdote={anecdote}
-          handleClick={voteAnecdote(anecdote)}
+          handleClick={() => voteAnecdote(anecdote)}
         />
       )}
     </div>
