@@ -14,17 +14,17 @@ export const notificationChange = (notification) => {
 }
 
 export const notify = ( content, time ) => {
-  return async (dispatch) => {
-    dispatch({
-      type: 'NOTIFICATION',
-      content
-    })
-    await setTimeout(() => {
+  return (dispatch) => {
+    setTimeout(() => {
       dispatch({
         type: 'NOTIFICATION',
         content: null
       })
     }, time * 100 )
+    dispatch({
+      type: 'NOTIFICATION',
+      content
+    })
   }
 }
 
